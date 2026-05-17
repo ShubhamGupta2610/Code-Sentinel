@@ -1,0 +1,37 @@
+# Web framework
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+python-multipart==0.0.9
+
+# Async queue
+celery==5.4.0
+redis==5.0.8
+flower==2.0.1
+
+# Database
+sqlalchemy==2.0.32
+alembic==1.13.2
+# NOTE: requires network access to install
+# For offline/test environments use sqlite via DATABASE_URL
+psycopg2-binary==2.9.9
+psycopg[binary]==3.2.7
+
+# GitHub
+PyGithub==2.3.0
+cryptography==43.0.0
+PyJWT==2.9.0
+
+# AI/LLM
+requests==2.32.3
+
+# Config
+pydantic-settings==2.4.0
+python-dotenv==1.0.1
+httpx==0.27.0
+
+# Logging
+structlog==24.4.0
+
+# Testing
+pytest==8.3.2
+pytest-asyncio==0.23.8

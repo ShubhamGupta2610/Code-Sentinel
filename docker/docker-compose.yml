@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: codesentinel
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../backend/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/codesentinel
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ../backend:/app
+
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: celery -A worker.celery_app worker --loglevel=info --concurrency=4
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - ../backend/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/codesentinel
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ../backend:/app
+
+  flower:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: celery -A worker.celery_app flower --port=5555
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
+
+volumes:
+  postgres_data:
+  redis_data:

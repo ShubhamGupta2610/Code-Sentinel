@@ -1,0 +1,14 @@
+{
+  "action": "opened",
+  "pull_request": {
+    "number": 1,
+    "title": "Smoke test PR",
+    "body": "demo body",
+    "head": { "sha": "deadbeef" }
+  },
+  "repository": {
+    "name": "demo-repo",
+    "owner": { "login": "demo-owner" }
+  },
+  "installation": { "id": 12345 }
+}

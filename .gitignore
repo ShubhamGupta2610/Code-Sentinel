@@ -1,0 +1,53 @@
+# SECRETS � NEVER COMMIT
+.env
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+build/
+dist/
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Models
+models/
+*.gguf
+
+# Database
+*.db
+*.sqlite3
+
+# Coverage
+.coverage
+htmlcov/
+
+# Docker
+*.pid
+
+# OS
+Thumbs.db
+*.swp
+
+# Alembic cache
+alembic/versions/__pycache__/

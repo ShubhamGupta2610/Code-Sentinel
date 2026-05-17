@@ -1,0 +1,21 @@
+node_modules/
+build/
+dist/
+
+# Database
+*.db
+*.sqlite3
+
+# Coverage
+.coverage
+htmlcov/
+
+# Docker
+*.pid
+
+# OS
+Thumbs.db
+*.swp
+
+# Alembic cache
+alembic/versions/__pycache__/

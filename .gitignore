@@ -51,3 +51,5 @@ Thumbs.db
 
 # Alembic cache
 alembic/versions/__pycache__/
+
+*.db-journal

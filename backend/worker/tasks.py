@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from datetime import datetime, timezone
 from typing import Any, Dict, List
 
-from celery import shared_task
+from worker.celery_app import celery
 from celery.exceptions import SoftTimeLimitExceeded
 from github.GithubException import GithubException
 from sqlalchemy.exc import SQLAlchemyError
@@ -24,7 +24,7 @@ from app.services.severity_ranker import rank_and_limit
 from app.services.github_client import get_repo, post_inline_comments, post_summary_review, post_commit_status, post_general_comment
 
 
-@shared_task(
+@celery.task(
     autoretry_for=(Exception,),
     retry_backoff=True,
     retry_backoff_max=60,

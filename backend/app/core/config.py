@@ -15,10 +15,10 @@ class Settings(BaseSettings):
 
     # Infrastructure
     DATABASE_URL: str = "sqlite:///./codesentinel.db"
-    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_URL: str = "redis://redis:6379/0"
 
     # LLM
-    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_BASE_URL: str = "http://ollama:11434"
     OLLAMA_MODEL: str = "codellama"
     OPENAI_API_KEY: str | None = None
 

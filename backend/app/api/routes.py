@@ -12,7 +12,7 @@ from app.db.database import get_db
 from app.db.models import Repository, PullRequestReview, Finding, Feedback, FeedbackAction
 from app.core.config import settings
 from app.core.logger import get_logger
-from app.models.schemas import PullRequestReviewSchema, RepositorySchema
+#from app.models.schemas import PullRequestReviewSchema, RepositorySchema
 
 router = APIRouter()
 log = get_logger(service="codesentinel-api")

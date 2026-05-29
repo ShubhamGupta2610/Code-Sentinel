@@ -257,3 +257,6 @@ PYTHONPATH=backend pytest tests/ -v --tb=short
 ## License
 
 MIT — free to use, modify, and distribute.
+
+
+Testing CodeSentinel GitHub App integration

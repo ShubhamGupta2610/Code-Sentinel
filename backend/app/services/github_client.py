@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import datetime
 from typing import Any, Dict, List
-
+import ssl
 import redis
 from github import Github, GithubIntegration
 from github.Repository import Repository
@@ -11,7 +11,11 @@ from github.Repository import Repository
 from app.core.config import settings
 from app.core.logger import get_logger
 
-redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
+redis_client = redis.Redis.from_url(
+    settings.REDIS_URL,
+    decode_responses=True,
+    ssl_cert_reqs=ssl.CERT_NONE,
+)
 
 # Severity emojis per spec
 EMOJI = {

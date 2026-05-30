@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
+    
     # GitHub
     GITHUB_APP_ID: str = "test-app-id"
     GITHUB_PRIVATE_KEY: str = "test-key"
@@ -16,6 +17,7 @@ class Settings(BaseSettings):
     # Infrastructure
     DATABASE_URL: str = "sqlite:///./codesentinel.db"
     REDIS_URL: str = "redis://redis:6379/0"
+    CELERY_REDIS_URL: str = "redis://redis:6379/0"
 
     # LLM
     OLLAMA_BASE_URL: str = "http://ollama:11434"

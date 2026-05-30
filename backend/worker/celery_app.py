@@ -8,8 +8,8 @@ from app.core.config import settings
 def create_celery_app() -> Celery:
     app = Celery(
         "codesentinel",
-        broker=settings.REDIS_URL,
-        backend=settings.REDIS_URL,
+        broker=settings.CELERY_REDIS_URL,
+        backend=settings.CELERY_REDIS_URL,
         include=["worker.tasks"],
     )
 

@@ -1,0 +1,12 @@
+OWASP Top 10 Security Checklist
+
+- Broken Access Control
+- Cryptographic Failures
+- Injection
+- Insecure Design
+- Security Misconfiguration
+- Vulnerable Components
+- Authentication Failures
+- Software Integrity Failures
+- Logging Failures
+- SSRF

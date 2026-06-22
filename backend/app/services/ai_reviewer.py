@@ -16,18 +16,38 @@ logger = get_logger(service="ai-reviewer")
 
 
 def _call_llm(prompt: str) -> str:
-    """Call Ollama with a deterministic, non-streaming request."""
+    """Call Groq LLM."""
     try:
         with httpx.Client(timeout=httpx.Timeout(180.0, connect=10.0)) as client:
             resp = client.post(
-                f"{settings.OLLAMA_BASE_URL}/api/generate",
-                json={"model": settings.OLLAMA_MODEL, "prompt": prompt, "stream": False},
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": "You are an expert secure code reviewer. Return valid JSON only."
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "temperature": 0.2,
+                },
             )
+
             resp.raise_for_status()
             data = resp.json()
-            return data.get("response", "")
-    except httpx.HTTPError as exc:
-        logger.error("ollama_request_failed", error=str(exc))
+
+            return data["choices"][0]["message"]["content"]
+
+    except Exception as exc:
+        logger.error("groq_request_failed", error=str(exc))
         raise
 
 

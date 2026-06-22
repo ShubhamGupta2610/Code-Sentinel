@@ -1,9 +1,6 @@
-"""Celery application factory."""
-from __future__ import annotations
-
 from celery import Celery
 from app.core.config import settings
-
+import ssl
 
 def create_celery_app() -> Celery:
     app = Celery(
@@ -19,6 +16,15 @@ def create_celery_app() -> Celery:
         accept_content=["json"],
         timezone="UTC",
         task_acks_late=True,
+
+
+        broker_use_ssl={
+            "ssl_cert_reqs": ssl.CERT_REQUIRED,
+        },
+
+        redis_backend_use_ssl={
+            "ssl_cert_reqs": ssl.CERT_REQUIRED,
+        },
     )
 
     return app

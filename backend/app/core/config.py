@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     OLLAMA_BASE_URL: str = "http://ollama:11434"
     OLLAMA_MODEL: str = "codellama"
     OPENAI_API_KEY: str | None = None
+    GROQ_API_KEY: str = ""
 
     # Limits
     MAX_DIFF_LINES: int = 150

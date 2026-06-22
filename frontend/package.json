@@ -3,21 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "PORT=3000 react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "dependencies": {
     "@tanstack/react-query": "4.35.0",
-    "axios": "1.6.7",
+    "axios": "^1.6.7",
+    "prop-types": "15.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.22.3",
     "react-scripts": "5.0.1",
-    "recharts": "2.8.0",
-    "prop-types": "15.8.1",
-    "react-syntax-highlighter": "15.5.0"
+    "react-syntax-highlighter": "15.5.0",
+    "recharts": "2.8.0"
   },
   "browserslist": {
     "production": [

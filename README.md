@@ -258,9 +258,8 @@ PYTHONPATH=backend pytest tests/ -v --tb=short
 
 MIT — free to use, modify, and distribute.
 
-here is shubham testing codesentinel
 
+testing is under process
 
-Testing CodeSentinel AI Reviewt e s t 
  
  

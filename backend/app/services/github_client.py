@@ -33,7 +33,13 @@ def _get_installation_token(installation_id: int) -> str:
     if cached:
         return cached
 
-    integration = GithubIntegration(settings.GITHUB_APP_ID, settings.GITHUB_PRIVATE_KEY)
+    private_key = settings.GITHUB_PRIVATE_KEY.replace("\\n", "\n")
+
+    integration = GithubIntegration(
+        int(settings.GITHUB_APP_ID),
+        private_key
+    )
+
     token = integration.get_access_token(installation_id).token
     redis_client.setex(cache_key, datetime.timedelta(minutes=55), token)
     return token

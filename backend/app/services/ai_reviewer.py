@@ -85,7 +85,7 @@ def _parse_json_layers(raw: str, chunk_index: int) -> Dict[str, Any]:
 
 def _load_prompt_assets() -> tuple[str, str]:
     """Load system and OWASP exemplar prompts from disk."""
-    root = Path(__file__).resolve().parents[3]  # repo root (CodeSentinel)
+    root = Path(__file__).resolve().parents[2] # repo root (CodeSentinel)
     system_prompt = (root / "prompts" / "system_prompt.txt").read_text(encoding="utf-8")
     owasp_examples = (root / "prompts" / "security_prompt.txt").read_text(encoding="utf-8")[:500]
     return system_prompt, owasp_examples

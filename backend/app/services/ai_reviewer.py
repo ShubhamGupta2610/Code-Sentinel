@@ -16,7 +16,7 @@ logger = get_logger(service="ai-reviewer")
 
 
 def _call_llm(prompt: str) -> str:
-    """Call Groq LLM."""
+    """Call Groq LLM and force CodeSentinel JSON schema."""
     try:
         with httpx.Client(timeout=httpx.Timeout(180.0, connect=10.0)) as client:
             resp = client.post(
@@ -30,7 +30,50 @@ def _call_llm(prompt: str) -> str:
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are an expert secure code reviewer. Return valid JSON only."
+                            "content": """
+You are CodeSentinel, an expert secure code reviewer.
+
+Return ONLY valid JSON.
+
+Required schema:
+
+{
+  "reasoning_summary": "string",
+  "findings": [
+    {
+      "severity": "CRITICAL|HIGH|MEDIUM|INFO",
+      "category": "Security|Bug|Performance|Code Quality",
+      "file_path": "path/to/file.py",
+      "line": 1,
+      "issue": "description of the issue",
+      "attack_scenario": "how this issue could be exploited",
+      "fix": "recommended fix",
+      "confidence": 0.95
+    }
+  ]
+}
+
+Rules:
+- Return ONLY JSON.
+- Do NOT wrap JSON in markdown.
+- Do NOT use keys:
+  bugs
+  security_vulnerabilities
+  code_quality_issues
+  performance_problems
+- Every issue MUST go inside the findings array.
+- confidence must be between 0.0 and 1.0.
+- line must be an integer.
+- severity must be one of:
+  CRITICAL, HIGH, MEDIUM, INFO
+
+If no issues are found return exactly:
+
+{
+  "reasoning_summary": "No significant issues found.",
+  "findings": []
+}
+"""
                         },
                         {
                             "role": "user",
@@ -38,6 +81,9 @@ def _call_llm(prompt: str) -> str:
                         }
                     ],
                     "temperature": 0.2,
+                    "response_format": {
+                        "type": "json_object"
+                    }
                 },
             )
 
@@ -77,6 +123,7 @@ def _parse_json_layers(raw: str, chunk_index: int) -> Dict[str, Any]:
         f"{raw}"
     )
     retry_raw = _call_llm(strict_prompt)
+    
     try:
         return json.loads(retry_raw)
     except json.JSONDecodeError as exc:  # noqa: BLE001
@@ -143,6 +190,7 @@ def review_chunk(chunk: str, intent_summary: str, context_block: str, chunk_inde
 
     try:
         raw = _call_llm(prompt)
+        logger.info("groq_raw_response", raw=raw[:3000])
         logger.debug( "llm_response_received", chunk_index=idx, raw_output_length=len(raw),)
     except Exception:
         # Optional OpenAI fallback

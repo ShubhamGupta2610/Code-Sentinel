@@ -42,8 +42,7 @@ def _get_installation_token(installation_id: int) -> str:
 
     token = integration.get_access_token(installation_id).token
     redis_client.setex(cache_key, datetime.timedelta(minutes=55), token)
-    token = _get_installation_token(installation_id)
-    print("TOKEN OK", token[:20])
+    
     return token
 
 
@@ -63,28 +62,100 @@ def post_general_comment(repo: Repository, pr_number: int, body: str) -> None:
     pr = repo.get_pull(pr_number)
     pr.create_issue_comment(body)
 
+def get_changed_lines(pr) -> Dict[str, set[int]]:
+    changed_lines = {}
+
+    for file in pr.get_files():
+        path = file.filename
+        changed_lines[path] = set()
+
+        patch = file.patch
+
+        if not patch:
+            continue
+
+        current_line = None
+
+        for line in patch.split("\n"):
+
+            if line.startswith("@@"):
+                import re
+
+                m = re.search(r"\+(\d+)", line)
+
+                if m:
+                    current_line = int(m.group(1))
+
+            elif line.startswith("+") and not line.startswith("+++"):
+                if current_line is not None:
+                    changed_lines[path].add(current_line)
+                    current_line += 1
+
+            elif not line.startswith("-"):
+                if current_line:
+                    current_line += 1
+
+    return changed_lines
 
 def post_inline_comments(repo: Repository, pr_number: int, findings: List[Dict[str, Any]]) -> List[int]:
     pr = repo.get_pull(pr_number)
+    commit = repo.get_commit(pr.head.sha)
+
+    valid_lines = get_changed_lines(pr)
+
+    get_logger().info(
+        "valid_lines_debug",
+        valid_lines=list(valid_lines.keys())
+    )
+
     comment_ids: List[int] = []
+
     for f in findings:
         body = (
             f"{EMOJI.get(f.get('severity'), '🔵')} {f.get('category')}\n"
             f"{f.get('issue_text', f.get('issue'))}\n\n"
             f"{f.get('fix_suggestion', f.get('fix', ''))}"
         )
+
+        file_path = f.get("file_path", "")
+        line = int(f.get("line", 1))
+
+        if (
+            file_path not in valid_lines
+            or line not in valid_lines[file_path]
+        ):
+            pr.create_issue_comment(
+                f"""
+                ⚠️ Finding could not be attached inline
+
+            File: {file_path}
+            Line: {line}
+
+            Issue:
+            {f.get('issue')}
+            """
+        )
+            continue
+
         try:
             comment = pr.create_review_comment(
                 body=body,
-                commit_id=pr.head.sha,
-                path=f.get("file_path", ""),
-                line=f.get("line", 1),
+                commit=commit,
+                path=file_path,
+                line=line,
             )
-            comment_ids.append(comment.id)
-        except Exception as exc:  # noqa: BLE001
-            get_logger().warning("comment_post_failed", error=str(exc))
-    return comment_ids
 
+            comment_ids.append(comment.id)
+
+        except Exception as exc:  # noqa: BLE001
+            get_logger().warning(
+                "comment_post_failed",
+                error=str(exc),
+                file_path=f.get("file_path"),
+                line=f.get("line"),
+            )
+
+    return comment_ids
 
 def post_summary_review(
     repo: Repository,

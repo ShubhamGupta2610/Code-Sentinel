@@ -42,6 +42,8 @@ def _get_installation_token(installation_id: int) -> str:
 
     token = integration.get_access_token(installation_id).token
     redis_client.setex(cache_key, datetime.timedelta(minutes=55), token)
+    token = _get_installation_token(installation_id)
+    print("TOKEN OK", token[:20])
     return token
 
 
@@ -115,3 +117,5 @@ def post_commit_status(repo: Repository, head_sha: str, grade: str, github_state
     commit = repo.get_commit(head_sha)
     description = f"Grade {grade} — {critical} critical, {high} high"
     commit.create_status(state=github_state, description=description, context=settings.STATUS_CONTEXT)
+
+

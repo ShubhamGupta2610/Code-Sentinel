@@ -155,6 +155,7 @@ def review_chunk(chunk: str, intent_summary: str, context_block: str, chunk_inde
     parsed = _parse_json_layers(raw, chunk_index=idx)
     reasoning, findings = _normalize_findings(parsed)
     logger.info("REACHED_NORMALIZE_FINDINGS")
+    logger.info("groq_raw_response", raw=raw[:2000])
     logger.info("findings_debug", findings=findings)
 
     # Do not drop lower-confidence findings here; filtering is applied downstream for posting.

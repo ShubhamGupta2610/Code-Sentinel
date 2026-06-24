@@ -139,20 +139,23 @@ def review_chunk(chunk: str, intent_summary: str, context_block: str, chunk_inde
     prompt = _build_prompt(intent_summary, context_block, owasp_examples, system_prompt, chunk)
 
     token_estimate = max(1, len(prompt) // 4)
-    logger.debug(EVENT["LLM_CALL_STARTED"], chunk_index=idx, model=settings.OLLAMA_MODEL, token_estimate=token_estimate)
+    logger.debug( "llm_call_started", chunk_index=idx, token_estimate=token_estimate,)
+
     try:
         raw = _call_llm(prompt)
-        logger.debug(EVENT["LLM_RESPONSE_RECEIVED"], chunk_index=idx, raw_output_length=len(raw))
+        logger.debug( "llm_response_received", chunk_index=idx, raw_output_length=len(raw),)
     except Exception:
         # Optional OpenAI fallback
         if settings.OPENAI_API_KEY:
-            logger.warning("ollama_failed_using_openai", chunk_index=idx)
+            logger.warning("primary_llm_failed_using_openai", chunk_index=idx)
             raw = _call_openai(prompt, chunk_index=idx)
         else:
             raise
 
     parsed = _parse_json_layers(raw, chunk_index=idx)
     reasoning, findings = _normalize_findings(parsed)
+    logger.info("REACHED_NORMALIZE_FINDINGS")
+    logger.info("findings_debug", findings=findings)
 
     # Do not drop lower-confidence findings here; filtering is applied downstream for posting.
     return {"reasoning_summary": reasoning, "findings": findings}
@@ -177,7 +180,8 @@ def _call_openai(prompt: str, chunk_index: int) -> str:
             resp.raise_for_status()
             data = resp.json()
             content = data["choices"][0]["message"]["content"]
-            logger.debug(EVENT["LLM_RESPONSE_RECEIVED"], provider="openai", chunk_index=chunk_index, raw_output_length=len(content))
+            logger.debug( "llm_response_received", provider="openai", chunk_index=chunk_index,
+            raw_output_length=len(content))
             return content
         except Exception as exc:  # noqa: BLE001
             logger.error("openai_request_failed", error=str(exc))

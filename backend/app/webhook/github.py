@@ -80,6 +80,7 @@ async def github_webhook(
     if settings.GITHUB_WEBHOOK_SECRET.startswith("test"):
         log.info("test_mode_skip_enqueue")
     else:
+        log.info("installation_debug", installation_id=installation.get("id"))
         process_pr_review.delay(job_payload)
         log.info(EVENT["JOB_QUEUED"])
 
